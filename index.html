@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spanish Colors Practice Exam</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Roboto&display=swap');
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f8ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Fredoka One', cursive;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 600px;
+        }
+
+        #student-name {
+            width: 80%;
+            padding: 10px;
+            margin-top: 10px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            margin-top: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            font-family: 'Fredoka One', cursive;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        #question-instruction {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        #question-options {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .color-box, .text-option {
+            width: 120px;
+            height: 120px;
+            border-radius: 15px;
+            cursor: pointer;
+            border: 4px solid transparent;
+            transition: all 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 22px;
+            font-family: 'Fredoka One', cursive;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .color-box:hover, .text-option:hover {
+            transform: scale(1.05);
+        }
+
+        .color-box.selected, .text-option.selected {
+            border-color: #007bff;
+            box-shadow: 0 0 10px #007bff;
+        }
+
+        .amarillo { background-color: #FFC300; }
+        .azul { background-color: #007bff; }
+        .rojo { background-color: #C70039; }
+        .verde { background-color: #28a745; }
+        .negro { background-color: #17202A; }
+        .blanco { background-color: #FDFEFE; border: 1px solid #ddd; color: #333; text-shadow: none;}
+        .gris { background-color: #9E9E9E; }
+        .naranja { background-color: #FF9800; }
+        .purpura { background-color: #9C27B0; }
+        .rosado { background-color: #FFB6C1; }
+        .marron { background-color: #795548; }
+
+        .text-option {
+            background-color: #5dade2;
+            height: 60px;
+            width: 150px;
+        }
+
+        #results-container p { font-size: 20px; }
+        #score-correct { color: #28a745; font-weight: bold; }
+        #score-incorrect { color: #C70039; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div id="welcome-container" class="container">
+        <h1>Welcome to the Spanish Colors Practice Exam!</h1>
+        <p>Please enter your name to start.</p>
+        <input type="text" id="student-name" placeholder="Your Name">
+        <button id="start-btn">Start Quiz</button>
+    </div>
+
+    <div id="quiz-container" class="container" style="display:none;">
+        <div id="question-header">
+            <p id="question-instruction"></p>
+        </div>
+        <div id="question-options"></div>
+        <button id="next-btn">Next</button>
+    </div>
+
+    <div id="results-container" class="container" style="display:none;">
+        <h1>Practice Finished!</h1>
+        <h2 id="student-name-result"></h2>
+        <p>Here are your results:</p>
+        <p id="score-correct">Correct Answers: 0</p>
+        <p id="score-incorrect">Incorrect Answers: 0</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const welcomeContainer = document.getElementById('welcome-container');
+            const quizContainer = document.getElementById('quiz-container');
+            const resultsContainer = document.getElementById('results-container');
+            const startBtn = document.getElementById('start-btn');
+            const studentNameInput = document.getElementById('student-name');
+            const nextBtn = document.getElementById('next-btn');
+            const questionInstruction = document.getElementById('question-instruction');
+            const questionOptions = document.getElementById('question-options');
+            const studentNameResult = document.getElementById('student-name-result');
+            const scoreCorrectText = document.getElementById('score-correct');
+            const scoreIncorrectText = document.getElementById('score-incorrect');
+
+            const colors = { 
+                Amarillo: '#FFC300', Azul: '#007bff', Rojo: '#C70039', Verde: '#28a745', Negro: '#17202A', Blanco: '#FDFEFE',
+                Gris: '#9E9E9E', Naranja: '#FF9800', Purpura: '#9C27B0', Rosado: '#FFB6C1', Marron: '#795548'
+            };
+
+            const questions = [
+                { type: 'dynamic', instruction: 'Click on the color Amarillo', answer: 'Amarillo' }, 
+                { type: 'dynamic', instruction: 'Click on the color Azul', answer: 'Azul' }, 
+                { type: 'dynamic', instruction: 'Click on the color Rojo', answer: 'Rojo' }, 
+                { type: 'dynamic', instruction: 'Click on the color Verde', answer: 'Verde' }, 
+                { type: 'dynamic', instruction: 'Click on the color Negro', answer: 'Negro' },
+                { type: 'comprehension', instruction: 'What color is a banana?', options: ['Amarillo', 'Rojo', 'Verde'], answer: 'Amarillo' }, 
+                { type: 'comprehension', instruction: 'What color is the sky (cielo)?', options: ['Negro', 'Azul', 'Blanco'], answer: 'Azul' }, 
+                { type: 'comprehension', instruction: 'What color is an apple (manzana)?', options: ['Azul', 'Verde', 'Rojo'], answer: 'Rojo' }, 
+                { type: 'comprehension', instruction: 'What color is the grass (césped)?', options: ['Verde', 'Blanco', 'Amarillo'], answer: 'Verde' }, 
+                { type: 'comprehension', instruction: 'What color is the snow (nieve)?', options: ['Negro', 'Rojo', 'Blanco'], answer: 'Blanco' },
+
+                { type: 'dynamic', instruction: 'Click on the color Gris', answer: 'Gris' },
+                { type: 'dynamic', instruction: 'Click on the color Naranja', answer: 'Naranja' },
+                { type: 'dynamic', instruction: 'Click on the color Purpura', answer: 'Purpura' },
+                { type: 'dynamic', instruction: 'Click on the color Rosado', answer: 'Rosado' },
+                { type: 'dynamic', instruction: 'Click on the color Marron', answer: 'Marron' },
+                { type: 'comprehension', instruction: 'What color is an elephant (elefante)?', options: ['Gris', 'Blanco', 'Azul'], answer: 'Gris' },
+                { type: 'comprehension', instruction: 'What color is a carrot (zanahoria)?', options: ['Naranja', 'Verde', 'Rojo'], answer: 'Naranja' },
+                { type: 'comprehension', instruction: 'What color are some grapes (uvas)?', options: ['Purpura', 'Rosado', 'Marron'], answer: 'Purpura' },
+                { type: 'comprehension', instruction: 'What color is a flamingo?', options: ['Blanco', 'Rosado', 'Naranja'], answer: 'Rosado' },
+                { type: 'comprehension', instruction: 'What color is chocolate?', options: ['Marron', 'Negro', 'Rojo'], answer: 'Marron' }
+            ];
+
+            let studentName = '';
+            let currentQuestionIndex = 0;
+            let userAnswers = [];
+            let selectedAnswer = null;
+
+            function shuffle(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+            }
+
+            startBtn.addEventListener('click', () => {
+                studentName = studentNameInput.value.trim();
+                if (studentName === '') {
+                    alert('Please enter your name!');
+                    return;
+                }
+                welcomeContainer.style.display = 'none';
+                quizContainer.style.display = 'block';
+                shuffle(questions);
+                currentQuestionIndex = 0;
+                userAnswers = [];
+                loadQuestion();
+            });
+
+            function loadQuestion() {
+                selectedAnswer = null;
+                questionOptions.innerHTML = '';
+                const question = questions[currentQuestionIndex];
+                questionInstruction.textContent = question.instruction;
+
+                if (question.type === 'dynamic') {
+                    const colorKeys = Object.keys(colors);
+                    shuffle(colorKeys);
+                    colorKeys.forEach(colorName => {
+                        const colorBox = document.createElement('div');
+                        colorBox.classList.add('color-box');
+                        colorBox.dataset.color = colorName;
+                        colorBox.style.backgroundColor = colors[colorName];
+                        if (colorName === 'Blanco') { colorBox.style.border = '1px solid #ddd'; }
+                        colorBox.addEventListener('click', () => selectOption(colorBox, colorName));
+                        questionOptions.appendChild(colorBox);
+                    });
+                } else if (question.type === 'comprehension') {
+                    const shuffledOptions = [...question.options];
+                    shuffle(shuffledOptions);
+                    shuffledOptions.forEach(optionText => {
+                        const textOption = document.createElement('div');
+                        textOption.classList.add('text-option');
+                        textOption.textContent = optionText;
+                        textOption.dataset.color = optionText;
+                        const colorNameClass = optionText.toLowerCase();
+                        textOption.classList.add(colorNameClass);
+                        textOption.addEventListener('click', () => selectOption(textOption, optionText));
+                        questionOptions.appendChild(textOption);
+                    });
+                }
+                nextBtn.textContent = (currentQuestionIndex === questions.length - 1) ? 'Finish Quiz' : 'Next';
+            }
+
+            function selectOption(element, answer) {
+                const previouslySelected = questionOptions.querySelector('.selected');
+                if (previouslySelected) { previouslySelected.classList.remove('selected'); }
+                element.classList.add('selected');
+                selectedAnswer = answer;
+            }
+
+            nextBtn.addEventListener('click', () => {
+                if (selectedAnswer === null) {
+                    alert('Please select an answer!');
+                    return;
+                }
+                userAnswers[currentQuestionIndex] = selectedAnswer;
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    loadQuestion();
+                } else {
+                    showResults();
+                }
+            });
+
+            function showResults() {
+                quizContainer.style.display = 'none';
+                resultsContainer.style.display = 'block';
+                let correctCount = 0;
+                for (let i = 0; i < questions.length; i++) {
+                    if (userAnswers[i] === questions[i].answer) { correctCount++; }
+                }
+                const incorrectCount = questions.length - correctCount;
+                studentNameResult.textContent = `Well done, ${studentName}!`;
+                scoreCorrectText.textContent = `Correct Answers: ${correctCount}`;
+                scoreIncorrectText.textContent = `Incorrect Answers: ${incorrectCount}`;
+            }
+        });
+    </script>
+
+</body>
+</html>
